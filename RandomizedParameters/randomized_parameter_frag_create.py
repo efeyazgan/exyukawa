@@ -38,7 +38,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 )"""
 
 
-	fragment += grid_points
+	fragment += "\n\n"+grid_points
 	fragment += r"""
 for grid_point in grid_points:
 	basePythiaParameters = cms.PSet(
