@@ -57,8 +57,8 @@ for grid_point in grid_points:
 	generator.RandomizedParameters.append(
 		cms.PSet(
 			ConfigWeight = cms.double(grid_point['weight']),
-            		ConfigDescription = cms.string(grid_point['name']),
-            		PythiaParameters = basePythiaParameters,
+			ConfigDescription = cms.string(grid_point['name']),
+			PythiaParameters = basePythiaParameters,
 			GridpackPath = cms.string(grid_point['gridpack_path']),
 		)
 	)
