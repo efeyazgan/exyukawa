@@ -9,12 +9,12 @@ import math
 #max_nevents = 0.0
 grid_points = "grid_points = ["
 with open('TOP_MC_Request_Information_g2HDM_2020_Sheet1.csv',newline='') as csvf:
-	csvreader = csv.DictReader(csvf,delimiter=' ')
+	csvreader = csv.DictReader(csvf,delimiter=',')
 	for row in csvreader:
-		if float(row['Total_events']) < min_nevents:
-			min_nevents = float(row['Total_events'])
-		if float(row['Total_events']) > max_nevents:
-			max_nevents = float(row['Total_events'])
+#		if float(row['Total_events']) < min_nevents:
+#			min_nevents = float(row['Total_events'])
+#		if float(row['Total_events']) > max_nevents:
+#			max_nevents = float(row['Total_events'])
 		grid_points += "{\"gridpack_path\": \""+row['Gridpack_location']+"\""+",\"processParameters\":"+\
 					  "['JetMatching:setMad = off',"+\
 					  "'JetMatching:scheme = 1',"+\
