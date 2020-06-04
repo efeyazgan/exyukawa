@@ -82,7 +82,7 @@ ProductionFilterSequence = cms.Sequence(generator)"""
 	print(fragment)
 
 eventsPerLS_min = math.floor(min_nevents / 100.)
-eventsPerLS_max = math.floor(max_nevents / 100.)
+eventsPerLS_max = math.floor(max_nevents / 1000.)
 if eventsPerLS_min < 100:
    print ("WARNING : Min nEvents = {} => eventsPerLS = {} is below 100".format(min_nevents, eventsPerLS_min))
    eventsPerLS_min = 100
