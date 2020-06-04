@@ -74,8 +74,8 @@ for grid_point in grid_points:
 	)
 
 ProductionFilterSequence = cms.Sequence(generator)"""
-	with open("fragment.txt",'w') as f:
-		print(fragment,file=f)
+with open("fragment.txt",'w') as f:
+	print(fragment,file=f)
 
 #eventsPerLS_min = math.floor(min_nevents / 100.)
 #eventsPerLS_max = math.floor(max_nevents / 1000.)
