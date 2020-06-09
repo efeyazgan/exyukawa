@@ -1,7 +1,7 @@
 set param_card frblock 2 0.0
 set param_card frblock 3 0.4
 set param_card frblock 4 0.0
-set param_card mass 9500000 950
+set param_card mass 5000000 950
 set param_card mass 5000001 0.0
 set param_card decay 5000000 8.48679598025
 set param_card decay 5000001 0.0
