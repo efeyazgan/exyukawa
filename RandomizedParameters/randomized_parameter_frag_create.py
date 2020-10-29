@@ -5,16 +5,28 @@ import csv
 import pickle
 import math
 
+particle = "s0"
+rhotu = "00"
+rhotc = "10"
 #min_nevents = 1.e20
 #max_nevents = 0.0
 grid_points = "grid_points = ["
-with open('TOP_MC_Request_Information_g2HDM_2020_Sheet1.csv',newline='') as csvf:
+#with open('TOP_MC_Request_Information_g2HDM_2020_Sheet1.csv',newline='') as csvf:
+with open('TOP_MC_Request_Information_g2HDM_2020_ana.csv',newline='') as csvf:
 	csvreader = csv.DictReader(csvf,delimiter=',')
 	for row in csvreader:
 #		if float(row['Total_events']) < min_nevents:
 #			min_nevents = float(row['Total_events'])
 #		if float(row['Total_events']) > max_nevents:
 #			max_nevents = float(row['Total_events'])
+		row['Gridpack_location']=row['Gridpack_location'].replace("rhotu00","rhotu"+rhotu)
+		row['Gridpack_location']=row['Gridpack_location'].replace("rhotc04","rhotc"+rhotc)
+		if rhotu != "00":
+			row['Dataset_name']=row['Dataset_name'].replace("rhotc04","rhotu"+rhotu)
+		if particle == "s0":
+			row['Dataset_name']=row['Dataset_name'].replace("TA","TS0")
+			row['Dataset_name']=row['Dataset_name'].replace("MA","MS0")
+			row['Gridpack_location']=row['Gridpack_location'].replace("a0","s0")
 		grid_points += "{\"gridpack_path\": \""+row['Gridpack_location']+"\""+",\"processParameters\":"+\
 					  "['JetMatching:setMad = off',"+\
 					  "'JetMatching:scheme = 1',"+\
@@ -74,7 +86,8 @@ for grid_point in grid_points:
 	)
 
 ProductionFilterSequence = cms.Sequence(generator)"""
-with open("fragment.txt",'w') as f:
+frag_file_name = "fragment_"+particle+"_rhotu"+rhotu+"_rhotc"+rhotc+".txt"
+with open(frag_file_name,'w') as f:
 	print(fragment,file=f)
 
 #eventsPerLS_min = math.floor(min_nevents / 100.)

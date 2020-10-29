@@ -1,0 +1,7 @@
+Dataset_name,Total_events,Gridpack_location,Weight
+TAToTTQ_MA-300_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M300_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
+TAToTTQ_MA-350_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M350_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
+TAToTTQ_MA-400_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M400_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
+TAToTTQ_MA-500_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M500_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
+TAToTTQ_MA-600_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M600_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
+TAToTTQ_MA-700_TuneCP5_13TeV_G2HDM-rtc04-madgraphMLM-pythia8,500000,/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/ttc/g2HDM_ttc_a0_M700_rhotu00_rhotc04_rhott00_slc7_amd64_gcc700_CMSSW_10_6_0_tarball.tar.xz,0.1666666667
