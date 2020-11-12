@@ -5,9 +5,9 @@ import csv
 import pickle
 import math
 
-particle = "s0"
+particle = "a0"
 rhotu = "00"
-rhotc = "10"
+rhotc = "04"
 #min_nevents = 1.e20
 #max_nevents = 0.0
 grid_points = "grid_points = ["
@@ -21,8 +21,10 @@ with open('TOP_MC_Request_Information_g2HDM_2020_ana.csv',newline='') as csvf:
 #			max_nevents = float(row['Total_events'])
 		row['Gridpack_location']=row['Gridpack_location'].replace("rhotu00","rhotu"+rhotu)
 		row['Gridpack_location']=row['Gridpack_location'].replace("rhotc04","rhotc"+rhotc)
-		if rhotu != "00":
-			row['Dataset_name']=row['Dataset_name'].replace("rhotc04","rhotu"+rhotu)
+		if "00" not in rhotu:
+			row['Dataset_name']=row['Dataset_name'].replace("rtc04","rtu"+rhotu)
+		if "00" not in rhotc:
+			row['Dataset_name']=row['Dataset_name'].replace("rtc04","rtc"+rhotc)
 		if particle == "s0":
 			row['Dataset_name']=row['Dataset_name'].replace("TA","TS0")
 			row['Dataset_name']=row['Dataset_name'].replace("MA","MS0")
