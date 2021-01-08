@@ -64,13 +64,13 @@ int TMVAClassification( TString myMethodList = "" )
    Use["FDA_MCMT"]        = 0;
    //
    // Neural Networks (all are feed-forward Multilayer Perceptrons)
-   Use["MLP"]             = 1; // Recommended ANN
+   Use["MLP"]             = 0; // Recommended ANN
    Use["MLPBFGS"]         = 0; // Recommended ANN with optional training method
    Use["MLPBNN"]          = 0; // Recommended ANN with BFGS training method and bayesian regulator
    Use["CFMlpANN"]        = 0; // Depreciated ANN from ALEPH
    Use["TMlpANN"]         = 0; // ROOT's own ANN
 #ifdef R__HAS_TMVAGPU
-   Use["DNN_GPU"]         = 0; // CUDA-accelerated DNN training.
+   Use["DNN_GPU"]         = 1; // CUDA-accelerated DNN training.
 #else
    Use["DNN_GPU"]         = 0;
 #endif
@@ -157,8 +157,7 @@ int TMVAClassification( TString myMethodList = "" )
    	}
    }
    
-   TString fname2 = "MC13TeV_2017_TTJets.root";
- //  TString fname2 = "MC13TeV_2017_TTJets_no_negative_weights.root";
+   TString fname2 = "MC13TeV_2017_TTTo2L2Nu.root";
    if (!gSystem->AccessPathName( fname2 )) {
       input = TFile::Open( fname2 ); // check if file in local directory exists
    }
@@ -168,17 +167,43 @@ int TMVAClassification( TString myMethodList = "" )
    }
    std::cout << "--- TMVAClassification       : Using input background file: " << input->GetName() << std::endl;
 
-   TTree *ttj     = (TTree*)input->Get("TreeInput");
+   TTree *ttj_dilep     = (TTree*)input->Get("TreeInput");
   
-   TH1F *h_pt_l1_ttj = new TH1F("h_pt_l1_ttj","pt(l1) (ttj)",40,30,430);
+   TString fname3 = "MC13TeV_2017_TTToSemiLeptonic.root";
+   if (!gSystem->AccessPathName( fname3 )) {
+      input = TFile::Open( fname3 ); // check if file in local directory exists
+   }
+   if (!input) {
+      std::cout << "ERROR: could not open background data file" << std::endl;
+      exit(1);
+   }
+   std::cout << "--- TMVAClassification       : Using input background file: " << input->GetName() << std::endl;
+
+   TTree *ttj_ljets     = (TTree*)input->Get("TreeInput");
+  
+   
+  
+   TH1F *h_pt_l1_ttj_dilepton = new TH1F("h_pt_l1_ttj","pt(l1) (ttj dilepton)",40,30,430);
    if (readnorm == 1){  
       float t_pt_l1,t_weight,t_scan_mass;
-	  ttj->SetBranchAddress("t_pt_l1",&t_pt_l1);
-   	  ttj->SetBranchAddress("t_weight",&t_weight);
-      Int_t nentries = (Int_t)ttj->GetEntries();
+	  ttj_dilep->SetBranchAddress("t_pt_l1",&t_pt_l1);
+   	  ttj_dilep->SetBranchAddress("t_weight",&t_weight);
+      Int_t nentries = (Int_t)ttj_dilep->GetEntries();
       for (Int_t i=0; i<nentries; i++){
-	   ttj->GetEntry(i);
-	   h_pt_l1_ttj->Fill(t_pt_l1,t_weight);//!!!!!!!!
+	   ttj_dilep->GetEntry(i);
+	   h_pt_l1_ttj_dilepton->Fill(t_pt_l1,t_weight);//!!!!!!!!
+   	  }
+   }
+   
+   TH1F *h_pt_l1_ttj_ljets = new TH1F("h_pt_l1_ttj","pt(l1) (ttj ljets)",40,30,430);
+   if (readnorm == 1){  
+      float t_pt_l1,t_weight,t_scan_mass;
+	  ttj_ljets->SetBranchAddress("t_pt_l1",&t_pt_l1);
+   	  ttj_ljets->SetBranchAddress("t_weight",&t_weight);
+      Int_t nentries = (Int_t)ttj_ljets->GetEntries();
+      for (Int_t i=0; i<nentries; i++){
+	   ttj_ljets->GetEntry(i);
+	   h_pt_l1_ttj_ljets->Fill(t_pt_l1,t_weight);//!!!!!!!!
    	  }
    }
    
@@ -354,6 +379,10 @@ int TMVAClassification( TString myMethodList = "" )
    Double_t lumi = 41367.0;
    Double_t signalWeight = lumi*0.043264 ;
    Double_t ttjWeight = lumi*832.;
+   
+   Double_t ttjDilepWeight = lumi*88.29;
+   Double_t ttjLJetsWeight = lumi*365.34;
+	   
    Double_t ttWWeight = lumi*0.2198;
    Double_t ttZWeight = lumi*0.2432;
    Double_t tZqWeight = lumi*0.07358;
@@ -371,13 +400,18 @@ int TMVAClassification( TString myMethodList = "" )
    dataloader->AddBackgroundTree( ttWjets, ttWWeight );
    dataloader->AddBackgroundTree( ttZ, ttZWeight );
    dataloader->AddBackgroundTree( tZq, tZqWeight );
-
+   dataloader->AddBackgroundTree( ttj_dilep, ttjDilepWeight );
+   dataloader->AddBackgroundTree( ttj_ljets, ttjLJetsWeight );
+   /*
    h_pt_l1->Scale(lumi*0.043264);//0.043264 bit for MA200_rtc04!!
-   h_pt_l1_ttj->Scale(lumi*832.);//832
+   //h_pt_l1_ttj->Scale(lumi*832.);//832
+   h_pt_l1_ttj_dilepton->Scale(lumi*88.29);
+   h_pt_l1_ttj_ljets->Scale(lumi*365.34);
    h_pt_l1_ttW->Scale(lumi*0.2198);//0.2198
    h_pt_l1_ttZ->Scale(lumi*0.2432);//0.2432
    h_pt_l1_tZq->Scale(lumi*0.07358);//0.07358
-
+*/
+   
    // To give different trees for training and testing, do as follows:
    //
    //dataloader->AddSignalTree( signalTrainingTree, signalTrainWeight, "Training" );
@@ -727,32 +761,37 @@ int TMVAClassification( TString myMethodList = "" )
 
    float integrated_lumi = 41367.;
    h_pt_l1->Scale(integrated_lumi*0.043264);//0.043264 bit for MA200_rtc04!!
-   h_pt_l1_ttj->Scale(integrated_lumi*832.);//832
+   h_pt_l1_ttj_dilepton->Scale(integrated_lumi*88.29);//88.29
+   h_pt_l1_ttj_ljets->Scale(integrated_lumi*365.34);//365.34
    h_pt_l1_ttW->Scale(integrated_lumi*0.2198);//0.2198
    h_pt_l1_ttZ->Scale(integrated_lumi*0.2432);//0.2432
    h_pt_l1_tZq->Scale(integrated_lumi*0.07358);//0.07358
    
+   
    TCanvas *c2 = new TCanvas();
    c2->cd(); 
    h_pt_l1->Draw();
-   h_pt_l1_ttj->Draw();
+   h_pt_l1_ttj_dilepton->Draw();
+   h_pt_l1_ttj_ljets->Draw("sames");
    h_pt_l1_ttW->Draw("sames");
    h_pt_l1_ttZ->Draw("sames");
    h_pt_l1_tZq->Draw("sames");
    
    
    
-   float int_back_ttj, int_back_ttW, int_back_ttZ, int_back_tZq;
-   int_back_ttj = h_pt_l1_ttj->Integral();
+   float int_back_ttj_dilepton, int_back_ttj_ljets, int_back_ttW, int_back_ttZ, int_back_tZq;
+   int_back_ttj_dilepton = h_pt_l1_ttj_dilepton->Integral();
+   int_back_ttj_ljets = h_pt_l1_ttj_ljets->Integral();
    int_back_ttW = h_pt_l1_ttW->Integral();
    int_back_ttZ = h_pt_l1_ttZ->Integral();
    int_back_tZq = h_pt_l1_tZq->Integral();
-   cout<<"Integral of the weighted and lumi normalized signal pt(l1) histogram = "<<h_pt_l1->Integral()<<endl;
-   cout<<"Integral of the weighted and lumi normalized ttj    pt(l1) histogram = "<<int_back_ttj<<endl;
-   cout<<"Integral of the weighted and lumi normalized ttW    pt(l1) histogram = "<<int_back_ttW<<endl;
-   cout<<"Integral of the weighted and lumi normalized ttZ    pt(l1) histogram = "<<int_back_ttZ<<endl;
-   cout<<"Integral of the weighted and lumi normalized tZq    pt(l1) histogram = "<<int_back_tZq<<endl;
-   cout<<"Integral of the weighted and lumi normalized total background pt(l1) histogram = "<<int_back_ttj+int_back_ttW+int_back_ttZ
+   cout<<"Integral of the weighted and lumi normalized signal        pt(l1) histogram = "<<h_pt_l1->Integral()<<endl;
+   cout<<"Integral of the weighted and lumi normalized ttj(dilepton) pt(l1) histogram = "<<int_back_ttj_dilepton<<endl;
+   cout<<"Integral of the weighted and lumi normalized ttj(ljets)    pt(l1) histogram = "<<int_back_ttj_ljets<<endl;
+   cout<<"Integral of the weighted and lumi normalized ttW           pt(l1) histogram = "<<int_back_ttW<<endl;
+   cout<<"Integral of the weighted and lumi normalized ttZ           pt(l1) histogram = "<<int_back_ttZ<<endl;
+   cout<<"Integral of the weighted and lumi normalized tZq           pt(l1) histogram = "<<int_back_tZq<<endl;
+   cout<<"Integral of the weighted and lumi normalized total background pt(l1) histogram = "<<int_back_ttj_dilepton+int_back_ttj_ljets+int_back_ttW+int_back_ttZ
 	   +int_back_tZq<<endl;
 
    c2->Write();
@@ -794,4 +833,12 @@ Integral of the weighted and lumi normalized ttW    HT histogram = 88.7749
 Integral of the weighted and lumi normalized ttZ    HT histogram = 35.2676
 Integral of the weighted and lumi normalized tZq    HT histogram = 5.22717
 Integral of the weighted and lumi normalized total background HT histogram = 2375.51
+
+Integral of the weighted and lumi normalized signal        pt(l1) histogram = 62.4706
+Integral of the weighted and lumi normalized ttj(dilepton) pt(l1) histogram = 288.073
+Integral of the weighted and lumi normalized ttj(ljets)    pt(l1) histogram = 431.648
+Integral of the weighted and lumi normalized ttW           pt(l1) histogram = 99.6616
+Integral of the weighted and lumi normalized ttZ           pt(l1) histogram = 40.812
+Integral of the weighted and lumi normalized tZq           pt(l1) histogram = 6.18059
+Integral of the weighted and lumi normalized total background pt(l1) histogram = 866.375
 */
