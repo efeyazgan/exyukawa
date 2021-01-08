@@ -1,5 +1,8 @@
 //Adapted from https://github.com/lmoneta/tmva-tutorial  
 
+// To run root -l TMVAClassification.C
+// and then the see the output with the TMVAGUi, you can do root -l -e 'TMVA::TMVAGui("TMVA.root")'
+
 #include <cstdlib>
 #include <iostream>
 #include <map>
