@@ -5,14 +5,28 @@ import re
 import sys
 import collections
 
+n = len(sys.argv)
+if n < 2:
+    print("enter (a0 or s0) and (rtu or rtc) and rho value")
+    sys.exit()
+
+particle = sys.argv[1]
+rho = sys.argv[2]
+rho_v = sys.argv[3]
+
 #5000000 s0
 #5000001 a0
-particle = "a0"
-ot_particle = "s0"
+#particle = "a0"
 #frblock --> rtu,rtc,rtt
-rtu = 1.0
+rtu = 0.0
 rtc = 0.0
 rtt = 0.0
+
+if rho == "rtu":
+    rtu = rho_v
+if rho == "rtc":
+    rtc = rho_v
+
 mass = [200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000]
 #decay widths a0=s0:
 rtc01=[
