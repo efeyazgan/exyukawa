@@ -36,7 +36,7 @@ bgth_highmass= "/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc7_amd64_gcc700/13
 cgbh_lowmass = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/cgbh/"
 bgth_lowmass = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/bgth/"
 
-if mass < 750:
+if mass < 700:
 	if proc == "cgbh":
 		inputgpdir = cgbh_lowmass
 	if proc == "bgth":
@@ -51,7 +51,9 @@ else:
 weight = 1./16.
 grid_points = "grid_points = ["
 for file in os.listdir(inputgpdir):
-	if "M"+str(mass) in file and "CMSSW_10_6_19_" not in file: 
+	if "M"+str(mass) in file:
+		if "CMSSW_10_6_19_" in file and ("200" not in file and "350" not in file and "600" not in file):
+			continue  
 		index = file.find("rhott")
 		coupling = file[index:index+15].replace("_","-")
 		if proc == "cgbh":
@@ -117,7 +119,10 @@ for grid_point in grid_points:
 
 ProductionFilterSequence = cms.Sequence(generator)"""
 dataset_name = dataset_name.replace("-"+coupling,"")
-frag_file_name = "fragment_"+dataset_name+".txt"
+if proc == "cgbh":	
+	frag_file_name = "cgbh_fragments/fragment_"+dataset_name+".txt"
+if proc == "bgth":	
+	frag_file_name = "bgth_fragments/fragment_"+dataset_name+".txt"
 with open(frag_file_name,'w') as f:
 	print(fragment,file=f)
 
