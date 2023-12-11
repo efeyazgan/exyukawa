@@ -59,7 +59,7 @@ for file in os.listdir(inputgpdir):
 		if proc == "bgth":
 			dataset_name = "BGToTHpm_MH-"+str(mass)+"-"+coupling+"_TuneCP5_13TeV_G2HDM-madgraphMLM-pythia8"	
 		print(dataset_name)
-		grid_points += "{\"gridpack_path\": \""+file+"\""+",\"processParameters\":"+\
+		grid_points += "{\"gridpack_path\": \""+inputgpdir+file+"\""+",\"processParameters\":"+\
 					  "['JetMatching:setMad = off',"+\
 					  "'JetMatching:scheme = 1',"+\
 					  "'JetMatching:merge = on',"+\
