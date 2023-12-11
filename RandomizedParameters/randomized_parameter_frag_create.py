@@ -1,35 +1,65 @@
 #!/usr/bin/env python3
 import os
 import sys
-import csv
-import pickle
+import argparse
+import textwrap
 import math
 
-particle = "a0"
-rhotu = "00"
-rhotc = "04"
-#min_nevents = 1.e20
-#max_nevents = 0.0
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description=textwrap.dedent('''\
+            ------------------------------------------------
+               This script checks for possible WARNINGs and ERRORs
+               and does a patch for the MG5_aMC LO nthreads problem if needed.
+                                                                                    '''))
+parser.add_argument('--mass', type=str, help="input charged higgs mass", nargs='+')
+parser.add_argument('--proc', type=str, help="enter process cgbh or bgth", nargs='+')
+args = parser.parse_args()
+
+mass = 0
+proc = {}
+inputgpdir = {}
+
+if args.mass is not None:
+	mass = int(args.mass[0])
+else:
+	print("Input charged higgs mass e.g. --mass 400")
+	sys.exit()
+if args.proc is not None:
+	proc = args.proc[0]
+else:
+	print("Input process: cgbh or bhth. e.g. --proc cgth")
+	sys.exit()
+
+cgbh_highmass= "/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc7_amd64_gcc700/13TeV/madgraph/V5_2.6.5/cgbh-new/"
+bgth_highmass= "/cvmfs/cms.cern.ch/phys_generator/gridpacks/slc7_amd64_gcc700/13TeV/madgraph/V5_2.6.5/bgth-new/"
+cgbh_lowmass = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/cgbh/"
+bgth_lowmass = "/cvmfs/cms.cern.ch/phys_generator/gridpacks/UL/13TeV/madgraph/V5_2.6.5/g2HDM/bgth/"
+
+if mass < 750:
+	if proc == "cgbh":
+		inputgpdir = cgbh_lowmass
+	if proc == "bgth":
+		inputgpdir = bgth_lowmass
+else:
+	if proc == "cgbh":
+		inputgpdir = cgbh_highmass
+	if proc == "bgth":
+		inputgpdir = bgth_highmass	
+
+
+weight = 1./16.
 grid_points = "grid_points = ["
-#with open('TOP_MC_Request_Information_g2HDM_2020_Sheet1.csv',newline='') as csvf:
-with open('TOP_MC_Request_Information_g2HDM_2020_ana.csv',newline='') as csvf:
-	csvreader = csv.DictReader(csvf,delimiter=',')
-	for row in csvreader:
-#		if float(row['Total_events']) < min_nevents:
-#			min_nevents = float(row['Total_events'])
-#		if float(row['Total_events']) > max_nevents:
-#			max_nevents = float(row['Total_events'])
-		row['Gridpack_location']=row['Gridpack_location'].replace("rhotu00","rhotu"+rhotu)
-		row['Gridpack_location']=row['Gridpack_location'].replace("rhotc04","rhotc"+rhotc)
-		if "00" not in rhotu:
-			row['Dataset_name']=row['Dataset_name'].replace("rtc04","rtu"+rhotu)
-		if "00" not in rhotc:
-			row['Dataset_name']=row['Dataset_name'].replace("rtc04","rtc"+rhotc)
-		if particle == "s0":
-			row['Dataset_name']=row['Dataset_name'].replace("TA","TS0")
-			row['Dataset_name']=row['Dataset_name'].replace("MA","MS0")
-			row['Gridpack_location']=row['Gridpack_location'].replace("a0","s0")
-		grid_points += "{\"gridpack_path\": \""+row['Gridpack_location']+"\""+",\"processParameters\":"+\
+for file in os.listdir(inputgpdir):
+	if "M"+str(mass) in file: 
+		index = file.find("rhott")
+		coupling = file[index:index+15].replace("_","-")
+		if proc == "cgbh":
+			dataset_name = "CGToBHpm_MH-"+str(mass)+"-"+coupling+"_TuneCP5_13TeV_G2HDM-madgraphMLM-pythia8"
+		if proc == "bgth":
+			dataset_name = "BGToTHpm_MH-"+str(mass)+"-"+coupling+"_TuneCP5_13TeV_G2HDM-madgraphMLM-pythia8"	
+		print(dataset_name)
+		grid_points += "{\"gridpack_path\": \""+file+"\""+",\"processParameters\":"+\
 					  "['JetMatching:setMad = off',"+\
 					  "'JetMatching:scheme = 1',"+\
 					  "'JetMatching:merge = on',"+\
@@ -41,11 +71,9 @@ with open('TOP_MC_Request_Information_g2HDM_2020_ana.csv',newline='') as csvf:
                       "'JetMatching:nQmatch = 5',"+\
                       "'JetMatching:nJetMax = 2',"+\
                       "'JetMatching:doShowerKt = off'"+\
-			          "], \"name\": \""+row['Dataset_name']+"\", \"weight\":"+row['Weight']+"}, "
-	grid_points = grid_points[:-2]+"]\n"
-#	print(grid_points)
-
-	fragment = """
+			          "], \"name\": \""+dataset_name+"\", \"weight\":"+str(weight)+"}, "
+grid_points = grid_points[::-1].replace(", "[::-1],"]\n"[::-1],1)[::-1]
+fragment = """
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
@@ -62,8 +90,8 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 )"""
 
 
-	fragment += "\n\n"+grid_points
-	fragment += r"""
+fragment += "\n\n"+grid_points
+fragment += r"""
 for grid_point in grid_points:
 	basePythiaParameters = cms.PSet(
 		pythia8CommonSettingsBlock,
@@ -88,7 +116,7 @@ for grid_point in grid_points:
 	)
 
 ProductionFilterSequence = cms.Sequence(generator)"""
-frag_file_name = "fragment_"+particle+"_rhotu"+rhotu+"_rhotc"+rhotc+".txt"
+frag_file_name = "fragment_"+dataset_name+".txt"
 with open(frag_file_name,'w') as f:
 	print(fragment,file=f)
 
