@@ -51,7 +51,7 @@ else:
 weight = 1./16.
 grid_points = "grid_points = ["
 for file in os.listdir(inputgpdir):
-	if "M"+str(mass) in file: 
+	if "M"+str(mass) in file and "CMSSW_10_6_19_" not in file: 
 		index = file.find("rhott")
 		coupling = file[index:index+15].replace("_","-")
 		if proc == "cgbh":
