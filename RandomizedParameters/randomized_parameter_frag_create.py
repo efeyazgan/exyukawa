@@ -116,6 +116,7 @@ for grid_point in grid_points:
 	)
 
 ProductionFilterSequence = cms.Sequence(generator)"""
+dataset_name = dataset_name.replace("-"+coupling,"")
 frag_file_name = "fragment_"+dataset_name+".txt"
 with open(frag_file_name,'w') as f:
 	print(fragment,file=f)
