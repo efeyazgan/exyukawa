@@ -117,9 +117,9 @@ for grid_point in grid_points:
 ProductionFilterSequence = cms.Sequence(generator)"""
 dataset_name = dataset_name.replace("-"+coupling,"")
 if proc == "cgbh":	
-	frag_file_name = "cgbh_fragments/fragment_"+dataset_name+".txt"
+	frag_file_name = "cgbh_fragments/fragment_"+dataset_name+".py"
 if proc == "bgth":	
-	frag_file_name = "bgth_fragments/fragment_"+dataset_name+".txt"
+	frag_file_name = "bgth_fragments/fragment_"+dataset_name+".py"
 with open(frag_file_name,'w') as f:
 	print(fragment,file=f)
 
